@@ -8,27 +8,17 @@ def cli_arguments(args=None):
     """Parse CLI arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument("username")
-    parser.add_argument("color", help="Color (white/black)")
     parser.add_argument("-o", "--output", default=None, help="Output filename")
+    parser.add_argument("-c", "--color", default=None, choices=["white", "black"], help="Color (white/black)")
+
 
     args = parser.parse_args()
     args.output = args.output if args.output is not None else f"{args.username}.pgn"
     
-    if args.color in ["w", "W", "White", "white"]:
-        print(args.color)
-        args.color = "white"
-
-    if args.color in ["b", "B", "Black", "black"]:
-        print(args.color)
-        args.color = "black"
-    
-    else: 
-        raise ValueError("Unaccepted input for 'color' variable")
-
     return args
 
 
-def download_pgn(username: str, color: str):
+def download_pgn(username: str, color=None):
     """Downloads games and concatenates to string"""
     print(f"Loading Games for user {username} with color {color} on chess.com")
 
@@ -43,17 +33,28 @@ def download_pgn(username: str, color: str):
         print(f"Downloading games from {month_url[-7:]}", end="\r")
         games = requests.get(month_url).json()["games"]
         for game in games:
-            # download only games with requested color
-            if game[f"{color}"]["username"] == username:
-                
-                try:
-                    pgn += game["pgn"] + "\n\n"
-                    nr_games += 1
-                except KeyError:
-                    pass
-            else:
-                continue
 
+            # TODO: How to write this in an elegant way without copying code? Too many if-statements...
+            # But one has to check if the variable is defined or not and the two cases have to be treated differently.
+            if color is not None:
+
+                # download only games with requested color
+                if game[f"{color}"]["username"] == username:
+                    
+                    try:
+                        pgn += game["pgn"] + "\n\n"
+                        nr_games += 1
+                    except KeyError:
+                        pass
+                else:
+                    continue
+
+            else: 
+                 try:
+                        pgn += game["pgn"] + "\n\n"
+                        nr_games += 1
+                 except KeyError:
+                    pass
     print(f"\nDownloaded {nr_games} games")
     return pgn
 
