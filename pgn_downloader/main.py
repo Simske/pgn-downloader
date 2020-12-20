@@ -9,18 +9,31 @@ def cli_arguments(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("username")
     parser.add_argument("-o", "--output", default=None, help="Output filename")
-    parser.add_argument("-c", "--color", default=None, choices=["white", "black"], help="Color (white/black)")
-
+    parser.add_argument(
+        "-c",
+        "--color",
+        default=None,
+        choices=["white", "black"],
+        help="Color (white/black)",
+    )
 
     args = parser.parse_args()
-    args.output = args.output if args.output is not None else f"{args.username}.pgn"
-    
+    # generate output filename default
+    if args.output is None:
+        if args.color is None:
+            f"{args.username}.pgn"
+        else:
+            f"{args.username}-{args.color}.pgn"
+
     return args
 
 
 def download_pgn(username: str, color=None):
-    """Downloads games and concatenates to string"""
-    print(f"Loading Games for user {username} with color {color} on chess.com")
+    """Downloads games and concatenates pgn to string"""
+    print(
+        f"Loading Games for user {username}"
+        f"{ 'with color {color} ' if color else '' }on chess.com"
+    )
 
     r_archives = requests.get(
         f"https://api.chess.com/pub/player/{username}/games/archives"
@@ -32,31 +45,41 @@ def download_pgn(username: str, color=None):
     for month_url in archives:
         print(f"Downloading games from {month_url[-7:]}", end="\r")
         games = requests.get(month_url).json()["games"]
+
         for game in games:
+            if filter_game(game, username, color):
+                pgn += game["pgn"] + "\n\n"
+                nr_games += 1
 
-            # TODO: How to write this in an elegant way without copying code? Too many if-statements...
-            # But one has to check if the variable is defined or not and the two cases have to be treated differently.
-            if color is not None:
-
-                # download only games with requested color
-                if game[f"{color}"]["username"] == username:
-                    
-                    try:
-                        pgn += game["pgn"] + "\n\n"
-                        nr_games += 1
-                    except KeyError:
-                        pass
-                else:
-                    continue
-
-            else: 
-                 try:
-                        pgn += game["pgn"] + "\n\n"
-                        nr_games += 1
-                 except KeyError:
-                    pass
     print(f"\nDownloaded {nr_games} games")
     return pgn
+
+
+def filter_game(game: dict, username: str, color: str = None) -> bool:
+    """Decide if game should be downloaded.
+
+    Args:
+        game (dict): game over which to decide
+        username (str): username of player (needed for color selection)
+        color (:obj:`str`, optional): player color to select.
+            Choices are `None`(for all colors), `white`, `black`.
+            Defaults to `None`
+
+    Returns:
+        bool: if game is selected
+
+    """
+    # return value, all checks should or with this
+    select_game: bool = True
+
+    # check if pgn even exists
+    if "pgn" not in game:
+        select_game &= False
+
+    if color is not None:
+        select_game &= game[color]["username"] == username
+
+    return select_game
 
 
 def cli_entrypoint():
