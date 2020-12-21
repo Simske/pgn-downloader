@@ -3,10 +3,12 @@ import argparse
 
 import requests
 
+from .version import version
 
 def cli_arguments(args=None):
     """Parse CLI arguments"""
     parser = argparse.ArgumentParser()
+    parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
     parser.add_argument("username")
     parser.add_argument("-o", "--output", default=None, help="Output filename")
     parser.add_argument(
