@@ -5,6 +5,7 @@ import requests
 
 from .version import version
 
+
 def cli_arguments(args=None):
     """Parse CLI arguments"""
     parser = argparse.ArgumentParser()
