@@ -2,6 +2,7 @@
 import argparse
 
 from . import chess_com, lichess
+from .date_parser import parse_date
 from .version import version
 
 
@@ -44,6 +45,12 @@ def cli_arguments(args=None):
     # parse playing modes
     args.mode = args.mode.split(",")
 
+    # parse `since` and `until` date strings
+    if args.since:
+        args.since = parse_date(args.since)
+    if args.until:
+        args.until = parse_date(args.until, end=True)
+
     return args
 
 
@@ -59,9 +66,13 @@ def main():
 
         print(f"Saved pgn to {args.output}")
     elif args.server == "lichess":
-        print("Not all filters are implemented yet!")
         lichess.download_pgn(
-            args.username, args.output, color=args.color, modes=args.mode
+            args.username,
+            args.output,
+            color=args.color,
+            modes=args.mode,
+            since=args.since,
+            until=args.until,
         )
         print("Downloaded games from Lichess")
 

@@ -1,6 +1,6 @@
 """all functions related to lichess"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 
@@ -20,9 +20,9 @@ def download_pgn(
     params = {}
     if since is not None:
         # timestamps in milliseconds
-        params["since"] = int(since.timestamp) * 1000
+        params["since"] = int(since.astimezone(timezone.utc).timestamp() * 1000)
     if until is not None:
-        params["until"] = int(until.timestamp) * 1000
+        params["until"] = int(until.astimezone(timezone.utc).timestamp() * 1000)
     if color is not None:
         params["color"] = color
     if modes is not None:
