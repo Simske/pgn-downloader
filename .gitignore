@@ -25,6 +25,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+venv
 
-# vim swap files
+# Editor dotfiles
 *.swp
+.vscode

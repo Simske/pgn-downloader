@@ -1,41 +1,13 @@
-#!/usr/bin/env python3
-import argparse
+"""all functions related to Chess.com"""
 
 import requests
-
-from .version import version
-
-
-def cli_arguments(args=None):
-    """Parse CLI arguments"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
-    parser.add_argument("username")
-    parser.add_argument("-o", "--output", default=None, help="Output filename")
-    parser.add_argument(
-        "-c",
-        "--color",
-        default=None,
-        choices=["white", "black"],
-        help="Color (white/black)",
-    )
-
-    args = parser.parse_args()
-    # generate output filename default
-    if args.output is None:
-        if args.color is None:
-            f"{args.username}.pgn"
-        else:
-            f"{args.username}-{args.color}.pgn"
-
-    return args
 
 
 def download_pgn(username: str, color=None):
     """Downloads games and concatenates pgn to string"""
     print(
         f"Loading Games for user {username}"
-        f"{ 'with color {color} ' if color else '' }on chess.com"
+        f"{ 'with color {color} ' if color else '' } on chess.com"
     )
 
     r_archives = requests.get(
@@ -83,17 +55,3 @@ def filter_game(game: dict, username: str, color: str = None) -> bool:
         select_game &= game[color]["username"] == username
 
     return select_game
-
-
-def cli_entrypoint():
-    args = cli_arguments()
-    pgn = download_pgn(args.username, args.color)
-
-    with open(args.output, "w") as f:
-        f.write(pgn)
-
-    print(f"Saved pgn to {args.output}")
-
-
-if __name__ == "__main__":
-    cli_entrypoint()
