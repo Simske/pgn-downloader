@@ -109,7 +109,7 @@ def subtract_months(date: datetime, months: int) -> datetime:
     """Get datetime at start of month n months ago"""
     year_delta, new_month = divmod(date.month - months, 12)
     return datetime(
-        year=date.year + year_delta,
+        year=date.year + year_delta - 1 * (new_month == 0),
         month=(new_month - 1) % 12 + 1,
         day=1,
         tzinfo=date.tzinfo,
