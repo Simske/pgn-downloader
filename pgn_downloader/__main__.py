@@ -58,13 +58,16 @@ def main():
     args = cli_arguments()
 
     if args.server == "chess.com":
-        print("Filters other than color are not implemented for chess.com")
-        pgn = chess_com.download_pgn(args.username, args.color)
+        chess_com.download_pgn(
+            args.username,
+            args.output,
+            color=args.color,
+            modes=args.mode,
+            since=args.since,
+            until=args.until,
+        )
+        print("Downloaded games from Chess.com")
 
-        with open(args.output, "x") as f:
-            f.write(pgn)
-
-        print(f"Saved pgn to {args.output}")
     elif args.server == "lichess":
         lichess.download_pgn(
             args.username,
