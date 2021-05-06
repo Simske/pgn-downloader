@@ -11,14 +11,20 @@ def download_pgn(
     username: str,
     output_path: str,
     color: str = None,
-    since: datetime = datetime.min,
-    until: datetime = datetime.max,
+    since: datetime = None,
+    until: datetime = None,
     modes: list = None,
 ):
     """Downloads games and writes them to output file"""
 
     # Chess.com uses another terminology
     modes = ["daily" if mode == "correspondence" else mode for mode in modes]
+
+    # make `None` datetimes comparable
+    if since is None:
+        since = datetime.min.replace(tzinfo=timezone.utc)
+    if until is None:
+        until = datetime.max.replace(tzinfo=timezone.utc)
 
     r_archives = requests.get(
         f"https://api.chess.com/pub/player/{username}/games/archives"
@@ -29,7 +35,9 @@ def download_pgn(
     with open(output_path, "x") as f:
         for month_url in archives:
             # only download archives in desired time range
-            archive_date = datetime.strptime(month_url[-7:], "%Y/%m").astimezone()
+            archive_date = datetime.strptime(month_url[-7:], "%Y/%m").replace(
+                tzinfo=timezone.utc
+            )
             if end_of_month(archive_date) < since or archive_date > until:
                 continue
 
@@ -82,7 +90,7 @@ def filter_game(
     select_game &= game["time_class"] in modes
 
     # select only games played in desired time range
-    game_date = datetime.fromtimestamp(game["end_time"]).astimezone()
+    game_date = datetime.fromtimestamp(game["end_time"]).astimezone(timezone.utc)
     select_game &= game_date >= since
     select_game &= game_date <= until
 
