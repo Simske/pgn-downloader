@@ -17,6 +17,8 @@ def download_pgn(
 ):
     """Download PGN from lichess with specified filters"""
     url = f"{LICHESS_ENDPOINT}/games/user/{username}"
+
+    # set parameters for api
     params = {}
     if since is not None:
         # timestamps in milliseconds
@@ -30,6 +32,13 @@ def download_pgn(
 
     with requests.get(url, params=params, stream=True) as r:
         r.raise_for_status()
+        nr_games = 0
+        last_prev = b"x"
         with open(output_path, "xb") as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
+                nr_games += chunk.count(b"\n\n")
+                nr_games += int(last_prev == b"\n" and chunk[0] == b"\n")
+                last_prev = chunk[-1]
+                print(f"Downloading {nr_games} games", end="\r")
+        print()

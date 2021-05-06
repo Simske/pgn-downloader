@@ -1,6 +1,6 @@
 """all functions related to Chess.com"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 
@@ -9,17 +9,13 @@ from .date_parser import end_of_month
 
 def download_pgn(
     username: str,
-    output_path,
+    output_path: str,
     color: str = None,
     since: datetime = datetime.min,
     until: datetime = datetime.max,
     modes: list = None,
 ):
     """Downloads games and writes them to output file"""
-    print(
-        f"Loading Games for user {username}"
-        f"{ 'with color {color} ' if color else '' } on chess.com"
-    )
 
     # Chess.com uses another terminology
     modes = ["daily" if mode == "correspondence" else mode for mode in modes]
@@ -36,6 +32,7 @@ def download_pgn(
             archive_date = datetime.strptime(month_url[-7:], "%Y/%m").astimezone()
             if end_of_month(archive_date) < since or archive_date > until:
                 continue
+
             print(f"Downloading games from {month_url[-7:]}", end="\r")
             games = requests.get(month_url).json()["games"]
 
@@ -44,7 +41,7 @@ def download_pgn(
                     f.write(game["pgn"] + "\n\n")
                     nr_games += 1
 
-        print(f"\nDownloaded {nr_games} games")
+        print(f"Downloaded {nr_games} games            ")
 
 
 def filter_game(
