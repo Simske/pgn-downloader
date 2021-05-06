@@ -4,13 +4,15 @@ from datetime import datetime
 
 import requests
 
+from .date_parser import end_of_month
+
 
 def download_pgn(
     username: str,
     output_path,
     color: str = None,
-    since: datetime = None,
-    until: datetime = None,
+    since: datetime = datetime.min,
+    until: datetime = datetime.max,
     modes: list = None,
 ):
     """Downloads games and writes them to output file"""
@@ -20,8 +22,7 @@ def download_pgn(
     )
 
     # Chess.com uses another terminology
-    for i in range(len(modes)):
-        modes[i] = modes[i].replace("correspondence", "daily")
+    modes = ["daily" if mode == "correspondence" else mode for mode in modes]
 
     r_archives = requests.get(
         f"https://api.chess.com/pub/player/{username}/games/archives"
@@ -29,16 +30,12 @@ def download_pgn(
     archives = r_archives.json()["archives"]
 
     nr_games = 0
-    with open(output_path, "w") as f:
+    with open(output_path, "x") as f:
         for month_url in archives:
             # only download archives in desired time range
-            archive_date = datetime.strptime(month_url[-7:], "%Y/%m")
-            if since is not None:
-                if too_old(archive_date, since):
-                    continue
-            if until is not None:
-                if too_young(archive_date, until):
-                    continue
+            archive_date = datetime.strptime(month_url[-7:], "%Y/%m").astimezone()
+            if end_of_month(archive_date) < since or archive_date > until:
+                continue
             print(f"Downloading games from {month_url[-7:]}", end="\r")
             games = requests.get(month_url).json()["games"]
 
@@ -89,31 +86,7 @@ def filter_game(
 
     # select only games played in desired time range
     game_date = datetime.fromtimestamp(game["end_time"]).astimezone()
-
-    if since is not None:
-        select_game &= game_date >= since
-
-    if until is not None:
-        select_game &= game_date <= until
+    select_game &= game_date >= since
+    select_game &= game_date <= until
 
     return select_game
-
-
-def too_young(archive_date: datetime, until: datetime) -> bool:
-    """check if archive date is newer than until, disregarding days"""
-    if archive_date.year > until.year or (
-        archive_date.year == until.year and archive_date.month > until.month
-    ):
-        return True
-    else:
-        return False
-
-
-def too_old(archive_date: datetime, since: datetime) -> bool:
-    """check if archive date is older than since, disregarding days"""
-    if archive_date.year < since.year or (
-        archive_date.year == since.year and archive_date.month < since.month
-    ):
-        return True
-    else:
-        return False
