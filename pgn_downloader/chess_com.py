@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 
 import requests
+from tqdm import tqdm
 
 from .date_parser import end_of_month
 
@@ -31,25 +32,22 @@ def download_pgn(
     )
     archives = r_archives.json()["archives"]
 
-    nr_games = 0
     with open(output_path, "x") as f:
-        for month_url in archives:
-            # only download archives in desired time range
-            archive_date = datetime.strptime(month_url[-7:], "%Y/%m").replace(
-                tzinfo=timezone.utc
-            )
-            if end_of_month(archive_date) < since or archive_date > until:
-                continue
+        with tqdm(desc="Downloading", unit=" games") as progress:
+            for month_url in archives:
+                # only download archives in desired time range
+                archive_date = datetime.strptime(month_url[-7:], "%Y/%m").replace(
+                    tzinfo=timezone.utc
+                )
+                if end_of_month(archive_date) < since or archive_date > until:
+                    continue
 
-            print(f"Downloading games from {month_url[-7:]}", end="\r")
-            games = requests.get(month_url).json()["games"]
+                games = requests.get(month_url).json()["games"]
 
-            for game in games:
-                if filter_game(game, username, color, since, until, modes):
-                    f.write(game["pgn"] + "\n\n")
-                    nr_games += 1
-
-        print(f"Downloaded {nr_games} games            ")
+                for game in games:
+                    if filter_game(game, username, color, since, until, modes):
+                        f.write(game["pgn"] + "\n\n")
+                        progress.update(1)
 
 
 def filter_game(

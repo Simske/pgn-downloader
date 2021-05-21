@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 
 import requests
+from tqdm import tqdm
 
 LICHESS_ENDPOINT = "https://lichess.org/api"
 
@@ -32,13 +33,16 @@ def download_pgn(
 
     with requests.get(url, params=params, stream=True) as r:
         r.raise_for_status()
-        nr_games = 0
-        last_prev = b"x"
+        last_prev = b"x"  # tmp variable to store last byte of each chunk
         with open(output_path, "xb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-                nr_games += chunk.count(b"\n\n")
-                nr_games += int(last_prev == b"\n" and chunk[0] == b"\n")
-                last_prev = chunk[-1]
-                print(f"Downloading {nr_games} games", end="\r")
-        print()
+            with tqdm(desc="Downloading", unit=" games") as progress:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+                    # count games in chunk by counting double newlines
+                    # which indicate start of next pgn
+                    # last_prev checks for newline at chunk boundary
+                    progress.update(
+                        chunk.count(b"\n\n")
+                        + int(last_prev == b"\n" and chunk[0] == b"\n")
+                    )
+                    last_prev = chunk[-1]
