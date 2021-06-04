@@ -9,7 +9,6 @@ from .version import version
 def cli_arguments() -> argparse.Namespace:
     """Parse CLI arguments"""
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
     parser.add_argument(
         "server", choices=("chess.com", "lichess"), help="Server to download games from"
     )
@@ -37,6 +36,7 @@ def cli_arguments() -> argparse.Namespace:
         default=None,
         help="Output filename (default: server_username-color.pgn)",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
 
     args = parser.parse_args()
 
