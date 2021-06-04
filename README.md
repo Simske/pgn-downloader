@@ -9,7 +9,7 @@ It provides filters to specify playing color, date range and playing mode.
 
 It can then installed with `pip`:
 ```
-pip install git+https://github.com/Simske/pgn-downloader.git
+pip install --upgrade pgn-downloader
 ```
 
 With this the tool can started with either:
