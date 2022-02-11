@@ -60,7 +60,7 @@ def cli_arguments() -> argparse.Namespace:
     return args
 
 
-def main():
+def main() -> None:
     try:
         args = cli_arguments()
 

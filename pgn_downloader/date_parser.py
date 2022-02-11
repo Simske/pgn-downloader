@@ -2,10 +2,8 @@
 
 from datetime import datetime, timedelta
 
-import requests
 
-
-def parse_date(date_str, end=False) -> datetime:
+def parse_date(date_str: str, end: bool = False) -> datetime:
     """Parse relative and absolute date strings of formats taken by
     `parse_relative_date` and `parse_absolute_date`"""
 
@@ -16,7 +14,7 @@ def parse_date(date_str, end=False) -> datetime:
     return date.astimezone()
 
 
-def parse_relative_date(date_str, end=False) -> datetime:
+def parse_relative_date(date_str: str, end: bool = False) -> datetime:
     """Parse date string of relative format '3h' meaning top of the hour - 3 hours ago
     Suffix units:
     - 'h': hours
@@ -46,7 +44,7 @@ def parse_relative_date(date_str, end=False) -> datetime:
     raise ValueError(f"Could not parse relative date_str '{date_str}'")
 
 
-def parse_absolute_date(date_str, end=False) -> datetime:
+def parse_absolute_date(date_str: str, end: bool = False) -> datetime:
     """Parse date string with specified year, year+month or year+month+day
 
     Returns datetime object at start or end of specified date"""

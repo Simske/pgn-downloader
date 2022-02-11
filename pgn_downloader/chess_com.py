@@ -1,9 +1,10 @@
 """all functions related to Chess.com"""
 
 from datetime import datetime, timezone
+from typing import Any, Iterable, List, Optional
 
 import requests
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 from .date_parser import end_of_month
 
@@ -11,15 +12,16 @@ from .date_parser import end_of_month
 def download_pgn(
     username: str,
     output_path: str,
-    color: str = None,
-    since: datetime = None,
-    until: datetime = None,
-    modes: list = None,
-):
+    color: Optional[str] = None,
+    since: Optional[datetime] = None,
+    until: Optional[datetime] = None,
+    modes: Optional[Iterable[str]] = None,
+) -> None:
     """Downloads games and writes them to output file"""
 
     # Chess.com uses another terminology
-    modes = ["daily" if mode == "correspondence" else mode for mode in modes]
+    if modes is not None:
+        modes = ["daily" if mode == "correspondence" else mode for mode in modes]
 
     # make `None` datetimes comparable
     if since is None:
@@ -51,12 +53,12 @@ def download_pgn(
 
 
 def filter_game(
-    game: dict,
+    game: dict[str, Any],
     username: str,
-    color: str = None,
-    since: datetime = None,
-    until: datetime = None,
-    modes: list = None,
+    color: Optional[str] = None,
+    since: Optional[datetime] = None,
+    until: Optional[datetime] = None,
+    modes: Optional[Iterable[str]] = None,
 ) -> bool:
     """Decide if game should be downloaded.
 
@@ -85,11 +87,14 @@ def filter_game(
         select_game &= game[color]["username"] == username
 
     # select only desired time controls
-    select_game &= game["time_class"] in modes
+    if modes is not None:
+        select_game &= game["time_class"] in modes
 
     # select only games played in desired time range
     game_date = datetime.fromtimestamp(game["end_time"]).astimezone(timezone.utc)
-    select_game &= game_date >= since
-    select_game &= game_date <= until
+    if since is not None:
+        select_game &= game_date >= since
+    if until is not None:
+        select_game &= game_date <= until
 
     return select_game
