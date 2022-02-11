@@ -1,6 +1,30 @@
-[build-system]
-requires = ["setuptools", "wheel", "setuptools_scm[toml]>=3.4"]
-build-backend = "setuptools.build_meta"
+[tool.poetry]
+name = "pgn-downloader"
+version = "0.2.0"
+description = "Tool to download games from a specific user on Lichess.org or chess.com"
+authors = ["Simske <mail@simske.com>", "chessdjw <dejowa97@web.de"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/Simske/pgn-downloader"
+classifiers = [
+    "Environment :: Console",
+    "Topic :: Games/Entertainment :: Board Games"
+]
 
-[tool.setuptools_scm]
-write_to = "pgn_downloader/version.py"
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/Simske/pgn-downloader/issues"
+
+[tool.poetry.dependencies]
+python = ">=3.6"
+requests = "^2.26.0"
+tqdm = "^4.62.3"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.931"
+types-requests = "^2.27.9"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+pgn-downloader = "pgn_downloader.__main__:main"
