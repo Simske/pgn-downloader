@@ -1,26 +1,28 @@
 """all functions related to lichess"""
 
 from datetime import datetime, timezone
+from os import PathLike
+from typing import Dict, Iterable, List, Optional, Union
 
 import requests
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 LICHESS_ENDPOINT = "https://lichess.org/api"
 
 
 def download_pgn(
     username: str,
-    output_path,
-    color: str = None,
-    since: datetime = None,
-    until: datetime = None,
-    modes: list = None,
-):
+    output_path: Union[str, PathLike[str]],
+    color: Optional[str] = None,
+    since: Optional[datetime] = None,
+    until: Optional[datetime] = None,
+    modes: Optional[Iterable[str]] = None,
+) -> None:
     """Download PGN from lichess with specified filters"""
     url = f"{LICHESS_ENDPOINT}/games/user/{username}"
 
     # set parameters for api
-    params = {}
+    params: Dict[str, Union[str, int]] = {}
     if since is not None:
         # timestamps in milliseconds
         params["since"] = int(since.astimezone(timezone.utc).timestamp() * 1000)
