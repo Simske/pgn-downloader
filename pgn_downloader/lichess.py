@@ -22,7 +22,7 @@ def download_pgn(
     url = f"{LICHESS_ENDPOINT}/games/user/{username}"
 
     # set parameters for api
-    params: Dict[str, Union[str, int]] = {}
+    params: Dict[str, Union[str, int]] = {"sort": "dateAsc"}
     if since is not None:
         # timestamps in milliseconds
         params["since"] = int(since.astimezone(timezone.utc).timestamp() * 1000)
