@@ -1,12 +1,16 @@
 """all functions related to Chess.com"""
 
 from datetime import datetime, timezone
-from typing import Any, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 import requests
 from tqdm import tqdm  # type: ignore
 
 from .date_parser import end_of_month
+
+HEADERS: Dict[str, str] = {
+    "User-Agent": "github.com/simske/pgn-downloader pgn-downloader@simske.com"
+}
 
 
 def download_pgn(
@@ -30,7 +34,7 @@ def download_pgn(
         until = datetime.max.replace(tzinfo=timezone.utc)
 
     r_archives = requests.get(
-        f"https://api.chess.com/pub/player/{username}/games/archives"
+        f"https://api.chess.com/pub/player/{username}/games/archives", headers=HEADERS
     )
     archives = r_archives.json()["archives"]
 
@@ -44,7 +48,7 @@ def download_pgn(
                 if end_of_month(archive_date) < since or archive_date > until:
                     continue
 
-                games = requests.get(month_url).json()["games"]
+                games = requests.get(month_url, headers=HEADERS).json()["games"]
 
                 for game in games:
                     if filter_game(game, username, color, since, until, modes):
