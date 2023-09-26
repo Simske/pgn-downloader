@@ -5,7 +5,7 @@ from os import PathLike
 from typing import Dict, Iterable, List, Optional, Union
 
 import requests
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 LICHESS_ENDPOINT = "https://lichess.org/api"
 

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, Optional
 
 import requests
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 from .date_parser import end_of_month
 
