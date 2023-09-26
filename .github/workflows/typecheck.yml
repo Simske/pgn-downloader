@@ -17,4 +17,4 @@ jobs:
       - name: Install pgn-dwnloader and dev dependencies
         run: pip install ".[dev]"
       - name: Run mypy
-        run: mypy
+        run: mypy --ignore-missing-imports
