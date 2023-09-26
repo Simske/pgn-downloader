@@ -1,7 +1,7 @@
 """all functions related to Chess.com"""
 
 from datetime import datetime, timezone
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, Optional
 
 import requests
 from tqdm import tqdm  # type: ignore
@@ -57,7 +57,7 @@ def download_pgn(
 
 
 def filter_game(
-    game: dict[str, Any],
+    game: Dict[str, Any],
     username: str,
     color: Optional[str] = None,
     since: Optional[datetime] = None,
