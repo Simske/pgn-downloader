@@ -2,8 +2,6 @@ name: type-check
 
 on:
   push:
-    paths:
-      - '*.py'
   pull_request:
 
 jobs:
